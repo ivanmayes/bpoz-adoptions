@@ -327,14 +327,33 @@ export class DogDetailService {
         if (description.includes('friendly')) {
             traits.push({ text: 'Friendly', type: 'positive', icon: 'fas fa-heart' });
         }
-        if (description.includes('energetic') || description.includes('active')) {
-            traits.push({ text: 'Energetic', type: 'neutral', icon: 'fas fa-bolt' });
-        }
         if (description.includes('calm') || description.includes('gentle')) {
             traits.push({ text: 'Calm', type: 'positive', icon: 'fas fa-dove' });
         }
         if (description.includes('playful')) {
             traits.push({ text: 'Playful', type: 'positive', icon: 'fas fa-ball' });
+        }
+
+        // Energy level
+        const energyLevel = animal.ENERGYLEVEL || animal.energylevel;
+        if (energyLevel) {
+           switch (energyLevel) {
+                case 1:
+                    traits.push({ text: 'Very Low Energy', type: 'neutral', icon: 'fas fa-bed' });
+                    break;
+                case 2:
+                    traits.push({ text: 'Low Energy', type: 'neutral', icon: 'fas fa-leaf' });
+                    break;
+                case 3:
+                    traits.push({ text: 'Medium Energy', type: 'neutral', icon: 'fas fa-walking' });
+                    break;
+                case 4:
+                    traits.push({ text: 'High Energy', type: 'neutral', icon: 'fas fa-bolt' });
+                    break;
+                case 5:
+                    traits.push({ text: 'Very High Energy', type: 'neutral', icon: 'fas fa-running' });
+                    break;
+            }
         }
         
         return traits;

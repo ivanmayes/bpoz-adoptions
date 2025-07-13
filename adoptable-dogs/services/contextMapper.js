@@ -27,14 +27,16 @@ export class ContextMapper {
             if (description.length > this.MAX_DESCRIPTION_LENGTH) {
                 description = description.substring(0, this.MAX_DESCRIPTION_LENGTH) + '...';
             }
+
+            const energyLevel = dog.ENERGYLEVEL || dog.energylevel || '';
             
             // Additional useful fields
             const sex = dog.SEXNAME || dog.sexname || '';
             const size = dog.SIZE || dog.size || '';
             const goodWith = this.extractCompatibility(dog);
             
-            // Format: ID|NAME|BREED|AGE|SEX|SIZE|GOOD_WITH|DESCRIPTION
-            return `${id}|${name}|${breed}|${age}|${sex}|${size}|${goodWith}|${description}`;
+            // Format: ID|NAME|BREED|AGE|SEX|SIZE|ENERGYLEVEL|GOOD_WITH|DESCRIPTION
+            return `${id}|${name}|${breed}|${age}|${sex}|${size}|${energyLevel}|${goodWith}|${description}`;
         }).join('\n');
     }
     
