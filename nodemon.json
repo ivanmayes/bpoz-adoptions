@@ -1,0 +1,8 @@
+{
+  "watch": ["*.js", "views/**/*", "public/**/*", "adoptable-dogs/**/*"],
+  "ext": "js,json,ejs,html,css",
+  "ignore": ["node_modules/**/*", "test/**/*"],
+  "env": {
+    "NODE_ENV": "development"
+  }
+}

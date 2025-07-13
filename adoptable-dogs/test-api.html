@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test</h1>
+    <pre id="output"></pre>
+    
+    <script>
+        async function testAPI() {
+            const output = document.getElementById('output');
+            
+            try {
+                // Get credentials
+                const envResponse = await fetch('/api/env');
+                const creds = await envResponse.json();
+                output.textContent += 'Credentials loaded\n\n';
+                
+                // Test the API
+                const apiUrl = `https://service.sheltermanager.com/asmservice?account=km2607&method=json_adoptable_animals&username=${creds.ASM_USERNAME}&password=${creds.ASM_PASSWORD}`;
+                output.textContent += `API URL: ${apiUrl}\n\n`;
+                
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                output.textContent += `Total animals: ${data.length}\n\n`;
+                
+                // Find first dog
+                const firstDog = data.find(animal => animal.SPECIESNAME && animal.SPECIESNAME.toLowerCase() === 'dog');
+                if (firstDog) {
+                    output.textContent += 'First dog data structure:\n';
+                    output.textContent += JSON.stringify(firstDog, null, 2) + '\n\n';
+                    
+                    // Test thumbnail URL
+                    const thumbnailUrl = `https://service.sheltermanager.com/asmservice?account=km2607&method=animal_thumbnail&animalid=${firstDog.ANIMALID}&username=${creds.ASM_USERNAME}&password=${creds.ASM_PASSWORD}`;
+                    output.textContent += `Thumbnail URL: ${thumbnailUrl}\n\n`;
+                    
+                    // Create image to test
+                    const img = document.createElement('img');
+                    img.src = thumbnailUrl;
+                    img.style.width = '200px';
+                    img.onload = () => output.textContent += 'Image loaded successfully!\n';
+                    img.onerror = () => output.textContent += 'Image failed to load!\n';
+                    document.body.appendChild(img);
+                }
+                
+            } catch (error) {
+                output.textContent += `Error: ${error.message}\n`;
+                console.error(error);
+            }
+        }
+        
+        testAPI();
+    </script>
+</body>
+</html>
