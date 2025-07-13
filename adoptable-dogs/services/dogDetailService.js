@@ -288,19 +288,35 @@ export class DogDetailService {
         const traits = [];
         
         // Add traits based on animal properties (handle both uppercase and lowercase)
-        if ((animal.ISGOODWITHCHILDREN || animal.isgoodwithchildren) === 1) {
+        // 0 === true, 1 === false, 2 === unknown
+
+        // Good with kids
+        const kidsVal = animal.ISGOODWITHCHILDREN ?? animal.isgoodwithchildren;
+        if (kidsVal === 0) {
             traits.push({ text: 'Good with kids', type: 'positive', icon: 'fas fa-child' });
         }
-        if ((animal.ISGOODWITHDOGS || animal.isgoodwithdogs) === 1) {
+
+        // Good with dogs
+        const dogsVal = animal.ISGOODWITHDOGS ?? animal.isgoodwithdogs;
+        if (dogsVal === 0) {
             traits.push({ text: 'Good with dogs', type: 'positive', icon: 'fas fa-dog' });
         }
-        if ((animal.ISGOODWITHCATS || animal.isgoodwithcats) === 1) {
+
+        // Good with cats
+        const catsVal = animal.ISGOODWITHCATS ?? animal.isgoodwithcats;
+        if (catsVal === 0) {
             traits.push({ text: 'Good with cats', type: 'positive', icon: 'fas fa-cat' });
         }
-        if ((animal.ISHOUSETRAINED || animal.ishousetrained) === 1) {
+
+        // House trained
+        const houseVal = animal.ISHOUSETRAINED ?? animal.ishousetrained;
+        if (houseVal === 0) {
             traits.push({ text: 'House trained', type: 'positive', icon: 'fas fa-home' });
         }
-        if ((animal.NEUTERED || animal.neutered) === 1) {
+
+        // Spayed/Neutered
+        const neuteredVal = animal.NEUTEREDNAME;
+        if (neuteredVal === 'Yes') {
             traits.push({ text: 'Spayed/Neutered', type: 'positive', icon: 'fas fa-check' });
         }
         
