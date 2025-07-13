@@ -41,23 +41,24 @@ export class ContextMapper {
     static extractCompatibility(dog) {
         const compatibility = [];
 
-        // Check various compatibility fields
-        if (dog.ISGOODWITHCATS || dog.isgoodwithcats === 1 || dog.isgoodwithcats === 'Yes') {
-            compatibility.push('cats');
-        }
-        if (dog.ISGOODWITHDOGS || dog.isgoodwithdogs === 1 || dog.isgoodwithdogs === 'Yes') {
-            compatibility.push('dogs');
-        }
-        if (dog.ISGOODWITHCHILDREN || dog.isgoodwithchildren === 1 || dog.isgoodwithchildren === 'Yes') {
-            compatibility.push('kids');
-        }
+        // Helper to map value to string
+        const mapValue = (value, item) => {
+            if (value === 0 || value === '0') return `Good with ${item}`;
+            if (value === 1 || value === '1') return `Bad with ${item}`;
+            if (value === 2 || value === '2') return `Not tested with ${item}`;
+            return null;
+        };
 
-        if (compatibility.length > 0) {
-            // Join as: Good with cats, Good with dogs, ...
-            return compatibility.map(item => `Good with ${item}`).join(', ');
-        } else {
-            return 'unknown';
-        }
+        // Check various compatibility fields
+        const cats = mapValue(dog.ISGOODWITHCATS ?? dog.isgoodwithcats, 'cats');
+        const dogs = mapValue(dog.ISGOODWITHDOGS ?? dog.isgoodwithdogs, 'dogs');
+        const kids = mapValue(dog.ISGOODWITHCHILDREN ?? dog.isgoodwithchildren, 'kids');
+
+        [cats, dogs, kids].forEach(result => {
+            if (result) compatibility.push(result);
+        });
+
+        return compatibility.length > 0 ? compatibility.join(', ') : 'unknown';
     }
     
     static getContextSize(context) {
