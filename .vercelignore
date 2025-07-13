@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Testing
+test.js
+*.test.js
+__tests__/
+
+# Development
+.env
+.env.local
+*.log
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+GITHUB_PAGES_SETUP.md
+*.md
+
+# IDE
+.vscode/
+.idea/
+
+# Build artifacts
+dist/
+build/
+
+# GitHub Actions
+.github/
+
+# Static build script (not needed for Vercel)
+build-static.js

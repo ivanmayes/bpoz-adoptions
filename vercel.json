@@ -1,0 +1,41 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "adoptable-dogs/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/adoptable-dogs/(.*)",
+      "dest": "/adoptable-dogs/$1"
+    },
+    {
+      "src": "/public/(.*)",
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.js"
+    }
+  ],
+  "env": {
+    "ASM_USERNAME": "@asm_username",
+    "ASM_PASSWORD": "@asm_password",
+    "ASM_ACCOUNT": "@asm_account",
+    "OPENAI_API_KEY": "@openai_api_key"
+  }
+}
