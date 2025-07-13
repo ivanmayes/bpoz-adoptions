@@ -169,12 +169,44 @@ app.get('/api/asm/:method', async (req, res) => {
   
   try {
     https.get(apiUrl, (apiRes) => {
-      const contentType = apiRes.headers['content-type'];
-      res.status(apiRes.statusCode);
-      if (contentType) {
-        res.set('Content-Type', contentType);
-      }
-      apiRes.pipe(res);
+      let data = '';
+      
+      apiRes.on('data', chunk => {
+        data += chunk;
+      });
+      
+      apiRes.on('end', () => {
+        try {
+          // Parse JSON response
+          const jsonData = JSON.parse(data);
+          
+          // Clean up PHOTOURLS to remove credentials
+          const cleanedData = jsonData.map(animal => {
+            if (animal.PHOTOURLS && Array.isArray(animal.PHOTOURLS)) {
+              animal.PHOTOURLS = animal.PHOTOURLS.map(url => {
+                // Remove username and password parameters from URLs
+                try {
+                  const urlObj = new URL(url);
+                  urlObj.searchParams.delete('username');
+                  urlObj.searchParams.delete('password');
+                  return urlObj.toString();
+                } catch (e) {
+                  // If URL parsing fails, return original
+                  return url;
+                }
+              });
+            }
+            return animal;
+          });
+          
+          res.status(apiRes.statusCode);
+          res.json(cleanedData);
+        } catch (parseError) {
+          // If not JSON or parsing fails, return as-is
+          res.status(apiRes.statusCode);
+          res.send(data);
+        }
+      });
     }).on('error', (error) => {
       console.error('API proxy error:', error);
       res.status(500).json({ error: 'Failed to fetch from ASM API' });
