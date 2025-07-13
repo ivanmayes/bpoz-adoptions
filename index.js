@@ -33,6 +33,16 @@ async function loadSystemPrompt() {
 loadSystemPrompt()
 
 app.use(express.json())
+
+// Allow iframe embedding from any origin
+app.use((req, res, next) => {
+  // Remove X-Frame-Options to allow iframe embedding
+  res.removeHeader('X-Frame-Options');
+  // Set Content Security Policy to allow framing from any origin
+  res.setHeader('Content-Security-Policy', "frame-ancestors *;");
+  next();
+})
+
 app.use(express.static(path.join(__dirname, 'public')))
 app.use('/adoptable-dogs', express.static(path.join(__dirname, 'adoptable-dogs')))
 app.set('views', path.join(__dirname, 'views'))
