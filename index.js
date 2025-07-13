@@ -33,8 +33,8 @@ app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
 
 app.get('/', (req, res) => {
-  console.log(`Rendering 'pages/index' for route '/'`)
-  res.render('pages/index')
+  console.log(`Redirecting to /adoptable-dogs`)
+  res.redirect('/adoptable-dogs')
 })
 
 app.get('/adoptable-dogs', (req, res) => {

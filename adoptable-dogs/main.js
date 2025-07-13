@@ -20,9 +20,21 @@ class DogAdoptionApp {
             this.service = new ASMService(credentials.username, credentials.password);
             await this.loadDogs();
             this.setupEventListeners();
+            this.checkUrlParams();
         } catch (error) {
             this.showError('Failed to initialize the application. Please check your credentials.');
             console.error('Initialization error:', error);
+        }
+    }
+    
+    checkUrlParams() {
+        // Check URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const openAIBar = urlParams.get('openAIBar');
+        
+        // If openAIBar=true, automatically open the AI sidebar
+        if (openAIBar === 'true') {
+            this.showChatSidebar();
         }
     }
     
