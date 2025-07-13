@@ -31,11 +31,5 @@
       "src": "/(.*)",
       "dest": "/index.js"
     }
-  ],
-  "env": {
-    "ASM_USERNAME": "@asm_username",
-    "ASM_PASSWORD": "@asm_password",
-    "ASM_ACCOUNT": "@asm_account",
-    "OPENAI_API_KEY": "@openai_api_key"
-  }
+  ]
 }
