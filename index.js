@@ -1,11 +1,32 @@
 require('dotenv').config()
 const express = require('express')
 const path = require('path')
+const fs = require('fs').promises
+const OpenAI = require('openai')
 
 const port = process.env.PORT || 5006
 
 const app = express()
 
+// Initialize OpenAI
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+})
+
+// Load system prompt
+let systemPrompt = ''
+async function loadSystemPrompt() {
+  try {
+    systemPrompt = await fs.readFile(path.join(__dirname, 'adoptable-dogs/prompts/system.txt'), 'utf8')
+    console.log('System prompt loaded successfully')
+  } catch (error) {
+    console.error('Error loading system prompt:', error)
+    systemPrompt = 'You are a helpful adoption assistant. Always respond in JSON format with keys: reply, filter, animalIds, rationales.'
+  }
+}
+loadSystemPrompt()
+
+app.use(express.json())
 app.use(express.static(path.join(__dirname, 'public')))
 app.use('/adoptable-dogs', express.static(path.join(__dirname, 'adoptable-dogs')))
 app.set('views', path.join(__dirname, 'views'))
@@ -68,6 +89,72 @@ app.get('/api/asm/:method', async (req, res) => {
   } catch (error) {
     console.error('API proxy error:', error);
     res.status(500).json({ error: 'Failed to fetch from ASM API' });
+  }
+})
+
+// Chat API endpoint
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { messages, context } = req.body
+    
+    // Check if OpenAI API key is properly configured
+    if (!process.env.OPENAI_API_KEY || 
+        process.env.OPENAI_API_KEY === 'your_openai_api_key_here' ||
+        process.env.OPENAI_API_KEY === 'sk-proj-YOUR_ACTUAL_OPENAI_API_KEY_HERE') {
+      console.log('OpenAI API key not configured properly')
+      return res.status(500).json({ 
+        error: 'OpenAI API key not configured',
+        reply: "I'm not properly configured yet. Please add your OpenAI API key to the .env file. Get your API key from https://platform.openai.com/api-keys",
+        filter: false
+      })
+    }
+    
+    // Build messages array for OpenAI
+    const openAIMessages = [
+      { role: 'system', content: systemPrompt },
+      ...messages
+    ]
+    
+    // Add context about available animals if provided
+    if (context) {
+      openAIMessages.push({
+        role: 'system',
+        content: `AVAILABLE ANIMALS:\n${context}\n\nBased on the user's preferences and this list of available animals, provide recommendations.`
+      })
+    }
+    
+    console.log('Sending chat request to OpenAI with', openAIMessages.length, 'messages...')
+    
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: openAIMessages,
+      response_format: { type: 'json_object' },
+      temperature: 0.7,
+      max_tokens: 500
+    })
+    
+    const responseContent = completion.choices[0].message.content
+    console.log('OpenAI response:', responseContent)
+    
+    // Parse and validate JSON response
+    try {
+      const parsed = JSON.parse(responseContent)
+      res.json(parsed)
+    } catch (parseError) {
+      console.error('Failed to parse OpenAI response:', parseError)
+      res.json({
+        reply: "I had trouble formatting my response. Let me try again.",
+        filter: false
+      })
+    }
+    
+  } catch (error) {
+    console.error('Chat API error:', error)
+    res.status(500).json({ 
+      error: 'Failed to process chat request',
+      reply: "I'm having trouble connecting right now. Please try again in a moment.",
+      filter: false
+    })
   }
 })
 

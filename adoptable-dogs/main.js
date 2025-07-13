@@ -1,4 +1,5 @@
 import { ASMService } from './api/asmService.js';
+import { ChatController } from './services/chatController.js';
 
 class DogAdoptionApp {
     constructor() {
@@ -6,6 +7,8 @@ class DogAdoptionApp {
         this.loadingEl = document.getElementById('loading');
         this.errorEl = document.getElementById('error');
         this.gridEl = document.getElementById('dogGrid');
+        this.chatController = new ChatController();
+        this.animalsData = [];
     }
 
     async init() {
@@ -41,6 +44,9 @@ class DogAdoptionApp {
             const animals = await this.service.getAdoptable();
             console.log('All animals:', animals);
             
+            // Store all animals data for chat
+            this.animalsData = animals;
+            
             // Check both uppercase and lowercase field names
             const dogs = animals.filter(animal => {
                 const speciesName = animal.SPECIESNAME || animal.speciesname;
@@ -60,6 +66,9 @@ class DogAdoptionApp {
             }
 
             this.displayDogs(dogs);
+            
+            // Pass animals data to chat controller
+            this.chatController.setAnimalsData(animals);
         } catch (error) {
             this.hideLoading();
             this.showError('Failed to load adoptable dogs. Please try again later.');
@@ -95,6 +104,7 @@ class DogAdoptionApp {
         card.target = '_blank';
         card.rel = 'noopener noreferrer';
         card.className = 'dog-card';
+        card.dataset.animalId = animalId; // Add animal ID for filtering
         
         const thumbnailUrl = this.service.thumbnailUrl(animalId);
         console.log('Dog:', animalName, 'ID:', animalId, 'Thumbnail URL:', thumbnailUrl);

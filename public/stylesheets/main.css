@@ -1,27 +1,86 @@
+
+body {
+  background: #F5F3EF;
+  color: #2B3A2B;
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+}
+
 .jumbotron {
-  background: #532F8C;
-  color: white;
-  padding-bottom: 80px; }
-  .jumbotron .btn-primary {
-    background: #845ac7;
-    border-color: #845ac7; }
-    .jumbotron .btn-primary:hover {
-      background: #7646c1; }
-  .jumbotron p {
-    color: #d9ccee;
-    max-width: 75%;
-    margin: 1em auto 2em; }
-  .navbar + .jumbotron {
-    margin-top: -20px; }
-  .jumbotron .lang-logo {
-    display: block;
-    background: #B01302;
-    border-radius: 50%;
-    overflow: hidden;
-    width: 100px;
-    height: 100px;
-    margin: auto;
-    border: 2px solid white; }
-    .jumbotron .lang-logo img {
-      max-width: 100%; }
+  background: #2B3A2B;
+  color: #FFFFFF;
+  padding-bottom: 80px;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(43,58,43,0.08);
+}
+.jumbotron .btn-primary {
+  background: #B01302;
+  border-color: #B01302;
+  color: #fff;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  transition: background 0.2s;
+}
+.jumbotron .btn-primary:hover {
+  background: #4A6B3C;
+  border-color: #4A6B3C;
+}
+.jumbotron p {
+  color: #4A6B3C;
+  max-width: 75%;
+  margin: 1em auto 2em;
+}
+.navbar + .jumbotron {
+  margin-top: -20px;
+}
+.jumbotron .lang-logo {
+  display: block;
+  background: #F6C667;
+  border-radius: 50%;
+  overflow: hidden;
+  width: 100px;
+  height: 100px;
+  margin: auto;
+  border: 2px solid #2B3A2B;
+}
+.jumbotron .lang-logo img {
+  max-width: 100%;
+}
+
+/* Accent buttons */
+.btn-accent {
+  background: #F6C667;
+  color: #2B3A2B;
+  border: none;
+  font-weight: bold;
+  border-radius: 6px;
+  padding: 0.5em 1.5em;
+  transition: background 0.2s;
+}
+.btn-accent:hover {
+  background: #B01302;
+  color: #fff;
+}
+
+/* Card backgrounds */
+.card {
+  background: #fff;
+  border: 1px solid #F6C667;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(43,58,43,0.04);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: #2B3A2B;
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+}
+
+/* Links */
+a {
+  color: #B01302;
+  text-decoration: underline;
+}
+a:hover {
+  color: #4A6B3C;
+}
 
