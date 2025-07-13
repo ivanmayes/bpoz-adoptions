@@ -4,81 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dog Details - Big Paws AI Chat</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="../public/stylesheets/main.css" rel="stylesheet">
-    <link href="styles.css" rel="stylesheet">
     <style>
-        /* Detailed view specific styles */
-        .dog-detail-container {
-            max-width: 1400px;
+        /* Detail page specific styles */
+        .dog-detail-main {
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 2rem;
+        }
+        .breadcrumb-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
         
         .breadcrumb-nav {
             background: transparent;
             padding: 0;
-            margin-bottom: 20px;
+            flex: 1;
+        }
+        
+        .breadcrumb-logo-link {
+            display: inline-block;
+            margin-left: 20px;
+            transition: opacity 0.2s;
+        }
+        
+        .breadcrumb-logo-link:hover {
+            opacity: 0.8;
+        }
+        
+        .breadcrumb-logo {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+            display: block;
         }
         
         .breadcrumb-nav .breadcrumb {
-            background: rgba(246, 198, 103, 0.1);
+            background: rgba(178, 179, 51, 0.1);
             border-radius: 8px;
             padding: 12px 16px;
             margin: 0;
+            list-style: none;
+            display: flex;
+            align-items: center;
         }
         
         .breadcrumb-nav .breadcrumb-item + .breadcrumb-item::before {
-            color: #4A6B3C;
+            color: #b2b333;
             content: ">";
             font-weight: bold;
+            margin: 0 10px;
         }
         
         .breadcrumb-nav .breadcrumb-item a {
-            color: #B01302;
+            color: #005331;
             text-decoration: none;
             font-weight: 500;
         }
         
         .breadcrumb-nav .breadcrumb-item.active {
-            color: #2B3A2B;
+            color: #005331;
             font-weight: bold;
         }
         
-        .dog-header {
-            background: linear-gradient(135deg, #2B3A2B 0%, #4A6B3C 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 20px rgba(43, 58, 43, 0.15);
-        }
         
-        .dog-header h1 {
-            color: white;
-            margin-bottom: 10px;
-            font-size: 2.5rem;
-            font-weight: 700;
-        }
-        
-        .dog-id {
-            color: #F6C667;
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        
-        .main-content {
+        .dog-detail-layout {
             display: grid;
             grid-template-columns: 1fr 400px;
             gap: 30px;
             margin-bottom: 30px;
         }
         
-        .dog-info-section {
-            display: grid;
-            grid-template-columns: 60% 40%;
+        .dog-detail-content {
+            display: flex;
+            flex-direction: column;
             gap: 30px;
+        }
+        
+        .right-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
         }
         
         /* Image Carousel */
@@ -86,14 +99,45 @@
             background: white;
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 4px 20px rgba(43, 58, 43, 0.08);
-            height: fit-content;
+            box-shadow: 0 4px 20px rgba(0, 83, 49, 0.08);
+            position: relative;
+        }
+        
+        .dog-name-overlay {
+            position: absolute;
+            bottom: 140px;
+            left: 40px;
+            z-index: 10;
+        }
+        
+        .dog-name-overlay h1 {
+            color: white;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.8),
+                0 0 40px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 20px 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dog-name-overlay .dog-id {
+            color: #efb819;
+            font-size: 1.2rem;
+            margin-top: 5px;
+            opacity: 0.9;
         }
         
         .main-image {
             width: 100%;
-            height: 400px;
-            object-fit: cover;
+            height: 90vh;
+            object-fit: contain;
+            background: linear-gradient(135deg, #005331 0%, #b2b333 100%);
             border-radius: 8px;
             margin-bottom: 15px;
             transition: transform 0.3s ease;
@@ -104,7 +148,8 @@
         }
         
         .thumbnail-grid {
-            display: grid;
+            display: flex;
+            flex-wrap: wrap;
             grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
             gap: 10px;
         }
@@ -112,7 +157,8 @@
         .thumbnail {
             width: 80px;
             height: 80px;
-            object-fit: cover;
+            object-fit: contain;
+            background: linear-gradient(135deg, #005331 0%, #b2b333 100%);
             border-radius: 6px;
             cursor: pointer;
             border: 2px solid transparent;
@@ -120,26 +166,20 @@
         }
         
         .thumbnail:hover, .thumbnail.active {
-            border-color: #F6C667;
+            border-color: #efb819;
         }
         
         /* Info Cards */
-        .info-section {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
         .info-card {
             background: white;
             border-radius: 12px;
             padding: 25px;
-            box-shadow: 0 4px 20px rgba(43, 58, 43, 0.08);
-            border: 1px solid rgba(246, 198, 103, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 83, 49, 0.08);
+            border: 1px solid rgba(178, 179, 51, 0.2);
         }
         
         .info-card h3 {
-            color: #2B3A2B;
+            color: #005331;
             margin-bottom: 15px;
             font-size: 1.4rem;
             font-weight: 600;
@@ -149,7 +189,7 @@
         }
         
         .info-card h3 i {
-            color: #F6C667;
+            color: #efb819;
         }
         
         .quick-stats {
@@ -164,20 +204,20 @@
             align-items: center;
             text-align: center;
             padding: 15px;
-            background: rgba(246, 198, 103, 0.1);
+            background: rgba(239, 184, 25, 0.1);
             border-radius: 8px;
         }
         
         .stat-label {
             font-size: 0.9rem;
-            color: #4A6B3C;
+            color: #b2b333;
             margin-bottom: 5px;
             font-weight: 500;
         }
         
         .stat-value {
             font-size: 1.1rem;
-            color: #2B3A2B;
+            color: #005331;
             font-weight: bold;
         }
         
@@ -190,8 +230,8 @@
         }
         
         .trait-badge {
-            background: #F6C667;
-            color: #2B3A2B;
+            background: #efb819;
+            color: #005331;
             padding: 8px 16px;
             border-radius: 20px;
             font-size: 0.9rem;
@@ -202,18 +242,18 @@
         }
         
         .trait-badge.positive {
-            background: #4A6B3C;
+            background: #b2b333;
             color: white;
         }
         
         .trait-badge.medical {
-            background: #B01302;
+            background: #005331;
             color: white;
         }
         
         .description-text {
             line-height: 1.7;
-            color: #2B3A2B;
+            color: #005331;
             font-size: 1.05rem;
         }
         
@@ -224,8 +264,8 @@
         }
         
         .btn-adopt {
-            background: #B01302;
-            color: white;
+            background: #efb819;
+            color: #005331;
             padding: 12px 30px;
             border-radius: 8px;
             border: none;
@@ -238,15 +278,35 @@
         }
         
         .btn-adopt:hover {
-            background: #4A6B3C;
+            background: #b2b333;
+            color: white;
+        }
+        
+        .btn-adopt-spanish {
+            background: #b2b333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .btn-adopt-spanish:hover {
+            background: #005331;
             color: white;
         }
         
         .btn-share {
             background: transparent;
-            color: #B01302;
+            color: #005331;
             padding: 12px 20px;
-            border: 2px solid #B01302;
+            border: 2px solid #005331;
             border-radius: 8px;
             font-weight: bold;
             text-decoration: none;
@@ -257,9 +317,10 @@
         }
         
         .btn-share:hover {
-            background: #B01302;
+            background: #005331;
             color: white;
         }
+        
         
         /* Loading States */
         .loading {
@@ -267,7 +328,7 @@
             justify-content: center;
             align-items: center;
             padding: 40px;
-            color: #4A6B3C;
+            color: #005331;
         }
         
         .loading i {
@@ -276,28 +337,47 @@
         
         /* Mobile Responsive */
         @media (max-width: 968px) {
-            .main-content {
+            .dog-detail-main {
+                padding: 1rem;
+            }
+            
+            .dog-detail-layout {
                 grid-template-columns: 1fr;
             }
             
-            .dog-info-section {
+            .right-sidebar {
+                position: static;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+            
+            .main-image {
+                height: 70vh;
+            }
+            
+            .dog-name-overlay {
+                top: 30px;
+                left: 30px;
+            }
+            
+            .dog-name-overlay h1 {
+                font-size: 2.5rem;
+                padding: 15px 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .right-sidebar {
                 grid-template-columns: 1fr;
             }
             
             .quick-stats {
                 grid-template-columns: repeat(2, 1fr);
             }
-            
-            .dog-header h1 {
-                font-size: 2rem;
-            }
         }
         
         @media (max-width: 576px) {
-            .dog-detail-container {
-                padding: 15px;
-            }
-            
             .quick-stats {
                 grid-template-columns: 1fr;
             }
@@ -309,51 +389,101 @@
             .thumbnail-grid {
                 grid-template-columns: repeat(4, 1fr);
             }
+            
+            .main-image {
+                height: 60vh;
+            }
+            
+            .dog-name-overlay {
+                top: 30px;
+                left: 30px;
+            }
+            
+            .dog-name-overlay h1 {
+                font-size: 2rem;
+                padding: 12px 16px;
+            }
+            
+            .dog-name-overlay .dog-id {
+                font-size: 1rem;
+            }
+            
+            .breadcrumb-logo {
+                height: 40px;
+                margin-left: 10px;
+            }
+            
+            .breadcrumb-header {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="dog-detail-container">
-        <!-- Breadcrumb Navigation -->
-        <nav class="breadcrumb-nav" aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="index.html" id="backToList">
-                        <i class="fas fa-arrow-left"></i> All Dogs
-                    </a>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page" id="dogNameBreadcrumb">
-                    Loading...
-                </li>
-            </ol>
-        </nav>
-
-        <!-- Dog Header -->
-        <div class="dog-header">
-            <h1 id="dogName">Loading...</h1>
-            <div class="dog-id" id="dogId"></div>
+    <!-- <header>
+        <h1>Dog Details</h1>
+        <div class="toolbar">
+            <button id="toggleView" class="toggle-btn">
+                Return to All Dogs
+            </button>
         </div>
+    </header> -->
+    
+    <div class="app-container">
+        <main class="main-content dog-detail-main">
+            <!-- Breadcrumb Navigation -->
+            <div class="breadcrumb-header">
+                <nav class="breadcrumb-nav" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="index.html" id="backToList">
+                                <i class="fas fa-arrow-left"></i> All Dogs
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page" id="dogNameBreadcrumb">
+                            Loading...
+                        </li>
+                    </ol>
+                </nav>
+                <a href="https://www.bigpawsozarks.org/" target="_blank" rel="noopener noreferrer" class="breadcrumb-logo-link">
+                    <img src="/logo.png" alt="Big Paws Logo" class="breadcrumb-logo">
+                </a>
+            </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Dog Information Section -->
-            <div class="dog-info-section">
-                <!-- Image Carousel -->
-                <div class="image-carousel-container">
-                    <div class="loading" id="imageLoading">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        Loading images...
+
+            <!-- Main Dog Content -->
+            <div class="dog-detail-layout">
+                <!-- Left Column: Photo and Description -->
+                <div class="dog-detail-content">
+                    <!-- Image Carousel -->
+                    <div class="image-carousel-container">
+                        <div class="loading" id="imageLoading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            Loading images...
+                        </div>
+                        <div id="imageCarousel" style="display: none;">
+                            <img id="mainImage" class="main-image" src="" alt="Dog photo">
+                            <div class="dog-name-overlay">
+                                <h1 id="dogName">Loading...</h1>
+                            </div>
+                            <div class="thumbnail-grid" id="thumbnailGrid">
+                                <!-- Thumbnails will be populated by JavaScript -->
+                            </div>
+                        </div>
                     </div>
-                    <div id="imageCarousel" style="display: none;">
-                        <img id="mainImage" class="main-image" src="" alt="Dog photo">
-                        <div class="thumbnail-grid" id="thumbnailGrid">
-                            <!-- Thumbnails will be populated by JavaScript -->
+
+                    <!-- Full Description (under photo) -->
+                    <div class="info-card">
+                        <h3><i class="fas fa-file-text"></i> About This Dog</h3>
+                        <div class="description-text" id="dogDescription">
+                            Loading description...
                         </div>
                     </div>
                 </div>
-
-                <!-- Dog Information -->
-                <div class="info-section">
+                
+                <!-- Right Sidebar: Stats and Traits -->
+                <div class="right-sidebar">
                     <!-- Quick Stats -->
                     <div class="info-card">
                         <h3><i class="fas fa-info-circle"></i> Quick Stats</h3>
@@ -384,60 +514,33 @@
                             <!-- Trait badges will be populated by JavaScript -->
                         </div>
                     </div>
-
-                    <!-- Full Description -->
-                    <div class="info-card">
-                        <h3><i class="fas fa-file-text"></i> About This Dog</h3>
-                        <div class="description-text" id="dogDescription">
-                            Loading description...
-                        </div>
-                    </div>
-
-                    <!-- Adoption Actions -->
-                    <div class="info-card">
-                        <h3><i class="fas fa-home"></i> Ready to Adopt?</h3>
-                        <p>We require an approved adoption application before scheduling meets with our dogs.</p>
-                        <div class="action-buttons">
-                            <a href="#" class="btn-adopt" id="adoptionLink">
-                                <i class="fas fa-heart"></i>
-                                Apply to Adopt
-                            </a>
-                            <a href="#" class="btn-share" id="shareButton">
-                                <i class="fas fa-share-alt"></i>
-                                Share
-                            </a>
-                        </div>
-                    </div>
                 </div>
             </div>
-
-            <!-- Chat Sidebar -->
-            <div class="chat-sidebar">
-                <div class="chat-container">
-                    <div class="chat-header">
-                        <h3>🐾 Paw-finder Assistant</h3>
-                        <button id="toggleView" class="btn btn-sm btn-outline-light">
-                            Return to All Dogs
-                        </button>
-                    </div>
-                    <div id="chat-messages" class="chat-messages">
-                        <!-- Chat messages will appear here -->
-                    </div>
-                    <div class="chat-input-container">
-                        <input type="text" id="chat-input" placeholder="Ask about this dog or adoption process..." disabled>
-                        <button id="chat-send" disabled>
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
+            
+            <!-- Full Width: Adoption Actions -->
+            <div class="info-card">
+                <h3><i class="fas fa-home"></i> Ready to Adopt?</h3>
+                <p>We require an approved adoption application before scheduling meets with our dogs.</p>
+                <div class="action-buttons">
+                    <a href="#" class="btn-adopt" id="adoptionLink">
+                        <i class="fas fa-heart"></i>
+                        Apply to Adopt
+                    </a>
+                    <a href="https://service.sheltermanager.com/asmservice?account=km2607&method=online_form_html&formid=45" class="btn-adopt-spanish">
+                        <i class="fas fa-heart"></i>
+                        Solicitar Adopción
+                    </a>
+                    <a href="#" class="btn-share" id="shareButton">
+                        <i class="fas fa-share-alt"></i>
+                        Share
+                    </a>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="services/dogDetailService.js" type="module"></script>
     <script src="services/dogDetailController.js" type="module"></script>
-    <script src="services/chatController.js" type="module"></script>
     <script>
         // Initialize the detailed view
         document.addEventListener('DOMContentLoaded', async function() {
@@ -457,16 +560,7 @@
                 const controller = new DogDetailController(dogId);
                 await controller.initialize();
                 
-                // Initialize chat for this specific dog
-                const { ChatController } = await import('./services/chatController.js');
-                const chatController = new ChatController();
-                chatController.setDogContext(dogId);
-                
-                // Set the dog context once the dog data is loaded
-                const dogContext = controller.getDogContext();
-                if (dogContext) {
-                    chatController.dogContext = dogContext;
-                }
+                // Chat removed from detail page
                 
             } catch (error) {
                 console.error('Failed to initialize:', error);

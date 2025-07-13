@@ -9,6 +9,8 @@ class DogAdoptionApp {
         this.gridEl = document.getElementById('dogGrid');
         this.chatController = new ChatController();
         this.animalsData = [];
+        this.chatSidebar = document.getElementById('chat-sidebar');
+        this.mainContent = document.getElementById('main-content');
     }
 
     async init() {
@@ -17,10 +19,57 @@ class DogAdoptionApp {
             console.log('Credentials loaded:', { username: credentials.username, hasPassword: !!credentials.password });
             this.service = new ASMService(credentials.username, credentials.password);
             await this.loadDogs();
+            this.setupEventListeners();
         } catch (error) {
             this.showError('Failed to initialize the application. Please check your credentials.');
             console.error('Initialization error:', error);
         }
+    }
+    
+    setupEventListeners() {
+        // Enable AI button
+        const enableAiBtn = document.getElementById('enable-ai');
+        if (enableAiBtn) {
+            enableAiBtn.addEventListener('click', () => {
+                this.showChatSidebar();
+            });
+        }
+        
+        // Close chat button
+        const closeChatBtn = document.getElementById('close-chat');
+        if (closeChatBtn) {
+            closeChatBtn.addEventListener('click', () => {
+                this.hideChatSidebar();
+            });
+        }
+    }
+    
+    showChatSidebar() {
+        this.chatSidebar.style.display = 'flex';
+        // Hide the promo alert
+        const promoAlert = document.querySelector('.ai-promo-alert');
+        if (promoAlert) {
+            promoAlert.style.display = 'none';
+        }
+        // Small delay to ensure display is set before animation
+        setTimeout(() => {
+            this.chatSidebar.classList.remove('hidden');
+            this.mainContent.classList.remove('expanded');
+        }, 10);
+    }
+    
+    hideChatSidebar() {
+        this.chatSidebar.classList.add('hidden');
+        this.mainContent.classList.add('expanded');
+        // Show the promo alert again
+        const promoAlert = document.querySelector('.ai-promo-alert');
+        if (promoAlert) {
+            promoAlert.style.display = 'flex';
+        }
+        // Hide completely after animation
+        setTimeout(() => {
+            this.chatSidebar.style.display = 'none';
+        }, 300);
     }
 
     async loadCredentials() {
@@ -79,8 +128,11 @@ class DogAdoptionApp {
     displayDogs(dogs) {
         this.gridEl.innerHTML = '';
         
-        dogs.forEach(dog => {
+        dogs.forEach((dog, index) => {
             const card = this.createDogCard(dog);
+            // Add staggered entrance animation
+            card.classList.add('filtering-in');
+            card.style.animationDelay = `${index * 0.03}s`;
             this.gridEl.appendChild(card);
         });
     }

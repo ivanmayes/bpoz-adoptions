@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adoptable Dogs</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -13,13 +14,17 @@
             <button id="toggleView" class="toggle-btn" disabled>
                 Show All Dogs
             </button>
+            <a href="https://www.bigpawsozarks.org/" target="_blank" rel="noopener noreferrer" class="header-logo-link">
+                <img src="/logo-white.png" alt="Big Paws Logo" class="header-logo">
+            </a>
         </div>
     </header>
     
     <div class="app-container">
-        <aside id="chat-sidebar" class="chat-sidebar">
+        <aside id="chat-sidebar" class="chat-sidebar" style="display: none;">
             <div class="chat-header">
                 <h2>Paw-finder Assistant</h2>
+                <button id="close-chat" class="close-chat-btn">×</button>
             </div>
             <div id="chat-messages" class="chat-messages"></div>
             <div class="chat-input-container">
@@ -32,9 +37,22 @@
                 >
                 <button id="chat-send" class="chat-send" disabled>Send</button>
             </div>
+            <div class="ai-disclaimer">
+                AI can make mistakes, double check details for any adoptable dog.
+            </div>
         </aside>
         
-        <main class="main-content">
+        <main class="main-content expanded" id="main-content">
+            <div class="ai-promo-alert">
+                <div class="ai-promo-content">
+                    <i class="fas fa-robot"></i>
+                    <span><strong>New!</strong> Try our AI Paw-finder Assistant to help you find your perfect match</span>
+                </div>
+                <button id="enable-ai" class="btn-enable-ai">
+                    <i class="fas fa-comments"></i>
+                    Chat with AI
+                </button>
+            </div>
             <div id="loading" class="loading">Loading adorable dogs...</div>
             <div id="error" class="error" style="display:none;"></div>
             <div id="dogGrid" class="dog-grid"></div>

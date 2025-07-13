@@ -30,7 +30,7 @@ export class DogDetailService {
             console.log('Found animal:', animal);
             
             // Transform the animal data to the expected format
-            return this.transformAnimalData(animal);
+            return this.transformAnimalData(animal, credentials);
             
         } catch (error) {
             console.error('Error fetching dog details, using mock data:', error);
@@ -227,18 +227,6 @@ export class DogDetailService {
         return description || 'No description available.';
     }
     
-    static getImageUrls(dogId) {
-        // Generate URLs for potential images
-        const imageUrls = [];
-        // Try up to 10 images (most dogs won't have this many)
-        for (let i = 1; i <= 10; i++) {
-            const url = i === 1 
-                ? `/api/asm/animal_image?animalid=${dogId}`
-                : `/api/asm/animal_image?animalid=${dogId}&seq=${i}`;
-            imageUrls.push(url);
-        }
-        return imageUrls;
-    }
     
     static extractAdoptionLink(doc) {
         // Look for adoption application link
@@ -255,28 +243,32 @@ export class DogDetailService {
     }
     
     static async validateImages(imageUrls) {
-        // Test which images actually exist
+        // For media_image URLs from PHOTOURLS, they should be valid
+        // so we can skip validation for performance
         const validImages = [];
         
         for (let url of imageUrls) {
-            try {
-                const response = await fetch(url, { method: 'HEAD' });
-                if (response.ok) {
-                    validImages.push(url);
-                } else {
-                    // Stop checking once we hit a 404
-                    break;
+            // If it's a media_image URL from the API, assume it's valid
+            if (url.includes('method=media_image')) {
+                validImages.push(url);
+            } else {
+                // For other URLs, validate them
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    if (response.ok) {
+                        validImages.push(url);
+                    }
+                } catch (error) {
+                    // Skip invalid URLs
+                    console.warn('Invalid image URL:', url);
                 }
-            } catch (error) {
-                // Stop on any error
-                break;
             }
         }
         
-        return validImages.length > 0 ? validImages : [imageUrls[0]]; // At least return first image
+        return validImages.length > 0 ? validImages : imageUrls.slice(0, 1); // At least return first image
     }
     
-    static transformAnimalData(animal) {
+    static async transformAnimalData(animal, credentials) {
         // Handle both uppercase and lowercase field names like in main.js
         const animalId = animal.ANIMALID || animal.animalid || animal.ID || animal.id;
         const animalName = animal.ANIMALNAME || animal.animalname || 'Unknown';
@@ -296,7 +288,7 @@ export class DogDetailService {
                         animal.ANIMALCOMMENTS || animal.animalcomments || 
                         'No description available',
             traits: this.extractTraitsFromData(animal),
-            images: this.getAnimalImages(animal),
+            images: await this.getAnimalImages(animal, credentials),
             location: animal.CURRENTOWNERNAME || animal.currentownername || 'Unknown',
             dateArrived: animal.DATEBROUGHTIN || animal.datebroughtin,
             microchip: animal.IDENTICHIPNUMBER || animal.identichipnumber,
@@ -305,7 +297,7 @@ export class DogDetailService {
             goodWithDogs: this.parseGoodWith(animal.ISGOODWITHDOGS || animal.isgoodwithdogs),
             goodWithCats: this.parseGoodWith(animal.ISGOODWITHCATS || animal.isgoodwithcats),
             houseTrained: this.parseYesNo(animal.ISHOUSETRAINED || animal.ishousetrained),
-            adoptionLink: `https://service.sheltermanager.com/asmservice?account=km2607&method=animal_view&animalid=${animalId}`
+            adoptionLink: `https://service.sheltermanager.com/asmservice?account=km2607&method=online_form_html&formid=21`
         };
     }
     
@@ -349,16 +341,20 @@ export class DogDetailService {
         return traits;
     }
     
-    static getAnimalImages(animal) {
-        const animalId = animal.ANIMALID || animal.animalid || animal.ID || animal.id;
+    static async getAnimalImages(animal, credentials) {
         const images = [];
         
-        // Generate URLs for potential images (same pattern as getImageUrls)
-        for (let i = 1; i <= 10; i++) {
-            const url = i === 1 
-                ? `/api/asm/animal_image?animalid=${animalId}`
-                : `/api/asm/animal_image?animalid=${animalId}&seq=${i}`;
-            images.push(url);
+        // Check if PHOTOURLS exists and has images
+        const photoUrls = animal.PHOTOURLS || animal.photourls;
+        
+        if (photoUrls && Array.isArray(photoUrls) && photoUrls.length > 0) {
+            // Use the actual photo URLs from the API response
+            images.push(...photoUrls);
+        } else {
+            // Fallback to thumbnail if no photos available
+            const animalId = animal.ANIMALID || animal.animalid || animal.ID || animal.id;
+            const asmService = new ASMService(credentials.username, credentials.password);
+            images.push(asmService.thumbnailUrl(animalId));
         }
         
         return images;

@@ -150,7 +150,7 @@ Please focus your response on this specific dog and provide helpful information 
         const typingEl = document.createElement('div');
         typingEl.className = 'chat-message assistant typing';
         typingEl.id = `typing-${Date.now()}`;
-        typingEl.innerHTML = '<span></span><span></span><span></span>';
+        typingEl.textContent = 'Paw-finder is thinking...';
         this.chatMessages.appendChild(typingEl);
         this.scrollToBottom();
         return typingEl.id;
@@ -177,21 +177,31 @@ Please focus your response on this specific dog and provide helpful information 
         // Get all dog cards
         const dogCards = document.querySelectorAll('.dog-card');
         
-        dogCards.forEach(card => {
+        dogCards.forEach((card, index) => {
             // Get animal ID from the card (we'll need to add this as a data attribute)
             const animalId = parseInt(card.dataset.animalId);
             
             if (animalIds.includes(animalId)) {
-                // Show this card
-                card.classList.remove('hidden');
+                // Show this card with animation
+                card.classList.remove('hidden', 'filtering-out');
+                card.classList.add('filtering-in');
+                
+                // Stagger the animation
+                card.style.animationDelay = `${index * 0.05}s`;
                 
                 // Add rationale if available
                 if (rationales && rationales[animalId]) {
                     this.addRationale(card, rationales[animalId]);
                 }
             } else {
-                // Hide this card
-                card.classList.add('hidden');
+                // Hide this card with animation
+                card.classList.remove('filtering-in');
+                card.classList.add('filtering-out');
+                
+                // After animation completes, hide completely
+                setTimeout(() => {
+                    card.classList.add('hidden');
+                }, 300);
             }
         });
         
@@ -218,10 +228,15 @@ Please focus your response on this specific dog and provide helpful information 
     
     toggleFilter() {
         if (this.isFiltered) {
-            // Show all dogs
+            // Show all dogs with animation
             const dogCards = document.querySelectorAll('.dog-card');
-            dogCards.forEach(card => {
-                card.classList.remove('hidden');
+            dogCards.forEach((card, index) => {
+                card.classList.remove('hidden', 'filtering-out');
+                card.classList.add('filtering-in');
+                
+                // Stagger the animation
+                card.style.animationDelay = `${index * 0.02}s`;
+                
                 // Remove rationales
                 const rationale = card.querySelector('.rationale');
                 if (rationale) rationale.remove();

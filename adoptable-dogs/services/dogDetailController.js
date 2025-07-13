@@ -1,5 +1,4 @@
 import { DogDetailService } from './dogDetailService.js';
-import { ChatController } from './chatController.js';
 
 export class DogDetailController {
     constructor(dogId) {
@@ -7,7 +6,6 @@ export class DogDetailController {
         this.dogData = null;
         this.currentImageIndex = 0;
         this.validImages = [];
-        this.chatController = null;
     }
     
     async initialize() {
@@ -15,7 +13,6 @@ export class DogDetailController {
             await this.loadDogData();
             this.setupEventListeners();
             await this.loadImages();
-            this.initializeChat();
         } catch (error) {
             console.error('Failed to initialize dog detail view:', error);
             this.showError('Failed to load dog details. Please try again.');
@@ -40,8 +37,7 @@ export class DogDetailController {
         document.title = `${this.dogData.name} - Dog Details`;
         document.getElementById('dogName').textContent = this.dogData.name;
         document.getElementById('dogNameBreadcrumb').textContent = this.dogData.name;
-        document.getElementById('dogId').textContent = `ID: ${this.dogData.id}`;
-        
+
         // Update quick stats
         document.getElementById('dogAge').textContent = this.dogData.age;
         document.getElementById('dogBreed').textContent = this.dogData.breed;
@@ -242,34 +238,5 @@ export class DogDetailController {
                 </p>
             </div>
         `;
-    }
-    
-    initializeChat() {
-        try {
-            this.chatController = new ChatController();
-            // Set dog context if available
-            if (this.dogData) {
-                this.chatController.setDogContext(this.getDogContext());
-            }
-        } catch (error) {
-            console.error('Error initializing chat:', error);
-            // Continue without chat functionality
-        }
-    }
-    
-    // Method to get dog data for chat context
-    getDogContext() {
-        if (!this.dogData) return null;
-        
-        return {
-            id: this.dogData.id,
-            name: this.dogData.name,
-            breed: this.dogData.breed,
-            age: this.dogData.age,
-            sex: this.dogData.sex,
-            size: this.dogData.size,
-            traits: this.dogData.traits.map(t => t.text),
-            description: this.dogData.description
-        };
     }
 }
