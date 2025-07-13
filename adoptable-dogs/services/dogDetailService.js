@@ -5,12 +5,8 @@ export class DogDetailService {
         try {
             console.log('Fetching details for dog ID:', dogId);
             
-            // Load credentials from environment
-            const credentials = await this.loadCredentials();
-            console.log('Credentials loaded:', { username: credentials.username, hasPassword: !!credentials.password });
-            
-            // Create ASMService instance with credentials
-            const asmService = new ASMService(credentials.username, credentials.password);
+            // Create ASMService instance - no credentials needed
+            const asmService = new ASMService();
             
             // Get all adoptable animals (same as index page)
             const animals = await asmService.getAdoptable();
@@ -30,7 +26,7 @@ export class DogDetailService {
             console.log('Found animal:', animal);
             
             // Transform the animal data to the expected format
-            return this.transformAnimalData(animal, credentials);
+            return this.transformAnimalData(animal);
             
         } catch (error) {
             console.error('Error fetching dog details, using mock data:', error);
@@ -38,19 +34,6 @@ export class DogDetailService {
         }
     }
     
-    static async loadCredentials() {
-        try {
-            const response = await fetch('/api/env');
-            const credentials = await response.json();
-            return {
-                username: credentials.ASM_USERNAME || '',
-                password: credentials.ASM_PASSWORD || ''
-            };
-        } catch (error) {
-            console.error('Failed to load credentials:', error);
-            throw new Error('Failed to load API credentials');
-        }
-    }
     
     static parseDogDetails(htmlText, dogId) {
         // Create a temporary DOM element to parse the HTML
@@ -268,7 +251,7 @@ export class DogDetailService {
         return validImages.length > 0 ? validImages : imageUrls.slice(0, 1); // At least return first image
     }
     
-    static async transformAnimalData(animal, credentials) {
+    static async transformAnimalData(animal) {
         // Handle both uppercase and lowercase field names like in main.js
         const animalId = animal.ANIMALID || animal.animalid || animal.ID || animal.id;
         const animalName = animal.ANIMALNAME || animal.animalname || 'Unknown';
@@ -288,7 +271,7 @@ export class DogDetailService {
                         animal.ANIMALCOMMENTS || animal.animalcomments || 
                         'No description available',
             traits: this.extractTraitsFromData(animal),
-            images: await this.getAnimalImages(animal, credentials),
+            images: await this.getAnimalImages(animal),
             location: animal.CURRENTOWNERNAME || animal.currentownername || 'Unknown',
             dateArrived: animal.DATEBROUGHTIN || animal.datebroughtin,
             microchip: animal.IDENTICHIPNUMBER || animal.identichipnumber,
@@ -341,7 +324,7 @@ export class DogDetailService {
         return traits;
     }
     
-    static async getAnimalImages(animal, credentials) {
+    static async getAnimalImages(animal) {
         const images = [];
         
         // Check if PHOTOURLS exists and has images
@@ -351,10 +334,13 @@ export class DogDetailService {
             // Use the actual photo URLs from the API response
             images.push(...photoUrls);
         } else {
-            // Fallback to thumbnail if no photos available
+            // Fallback to creating image URLs if no photos available
             const animalId = animal.ANIMALID || animal.animalid || animal.ID || animal.id;
-            const asmService = new ASMService(credentials.username, credentials.password);
-            images.push(asmService.thumbnailUrl(animalId));
+            const asmService = new ASMService();
+            // Try to get at least 3 images
+            for (let i = 1; i <= 3; i++) {
+                images.push(asmService.imageUrl(animalId, i));
+            }
         }
         
         return images;

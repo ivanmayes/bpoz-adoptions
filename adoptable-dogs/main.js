@@ -15,14 +15,13 @@ class DogAdoptionApp {
 
     async init() {
         try {
-            const credentials = await this.loadCredentials();
-            console.log('Credentials loaded:', { username: credentials.username, hasPassword: !!credentials.password });
-            this.service = new ASMService(credentials.username, credentials.password);
+            // No need to load credentials - handled server-side
+            this.service = new ASMService();
             await this.loadDogs();
             this.setupEventListeners();
             this.checkUrlParams();
         } catch (error) {
-            this.showError('Failed to initialize the application. Please check your credentials.');
+            this.showError('Failed to initialize the application. Please try again later.');
             console.error('Initialization error:', error);
         }
     }
@@ -84,19 +83,6 @@ class DogAdoptionApp {
         }, 300);
     }
 
-    async loadCredentials() {
-        try {
-            const response = await fetch('/api/env');
-            const credentials = await response.json();
-            return {
-                username: credentials.ASM_USERNAME || '',
-                password: credentials.ASM_PASSWORD || ''
-            };
-        } catch (error) {
-            console.error('Failed to load credentials:', error);
-            throw new Error('Failed to load API credentials');
-        }
-    }
 
     async loadDogs() {
         try {

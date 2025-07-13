@@ -58,45 +58,122 @@ app.get('/adoptable-dogs', (req, res) => {
   res.sendFile(path.join(__dirname, 'adoptable-dogs', 'index.html'))
 })
 
+// SECURITY: Only return non-sensitive configuration
 app.get('/api/env', (req, res) => {
   res.json({
-    ASM_USERNAME: process.env.ASM_USERNAME || '',
-    ASM_PASSWORD: process.env.ASM_PASSWORD || '',
+    // DO NOT EXPOSE USERNAME OR PASSWORD
     ASM_ACCOUNT: process.env.ASM_ACCOUNT || 'km2607'
   })
 })
 
-// API proxy to handle potential CORS issues
+// Proxy endpoint for animal thumbnails
+app.get('/api/animal-thumbnail/:animalId', async (req, res) => {
+  const https = require('https');
+  const { animalId } = req.params;
+  
+  const queryParams = new URLSearchParams({
+    account: process.env.ASM_ACCOUNT || 'km2607',
+    method: 'animal_thumbnail',
+    animalid: animalId,
+    username: process.env.ASM_USERNAME,
+    password: process.env.ASM_PASSWORD
+  });
+  
+  const apiUrl = `https://service.sheltermanager.com/asmservice?${queryParams}`;
+  
+  https.get(apiUrl, (apiRes) => {
+    res.status(apiRes.statusCode);
+    res.set('Content-Type', apiRes.headers['content-type'] || 'image/jpeg');
+    res.set('Cache-Control', 'public, max-age=3600'); // Cache images for 1 hour
+    apiRes.pipe(res);
+  }).on('error', (error) => {
+    console.error('Thumbnail proxy error:', error);
+    res.status(500).send('Failed to fetch thumbnail');
+  });
+});
+
+// Proxy endpoint for animal images with sequence
+app.get('/api/animal-image/:animalId/:seq', async (req, res) => {
+  const https = require('https');
+  const { animalId, seq } = req.params;
+  
+  const queryParams = new URLSearchParams({
+    account: process.env.ASM_ACCOUNT || 'km2607',
+    method: 'animal_image',
+    animalid: animalId,
+    seq: seq,
+    username: process.env.ASM_USERNAME,
+    password: process.env.ASM_PASSWORD
+  });
+  
+  const apiUrl = `https://service.sheltermanager.com/asmservice?${queryParams}`;
+  
+  https.get(apiUrl, (apiRes) => {
+    res.status(apiRes.statusCode);
+    res.set('Content-Type', apiRes.headers['content-type'] || 'image/jpeg');
+    res.set('Cache-Control', 'public, max-age=3600'); // Cache images for 1 hour
+    apiRes.pipe(res);
+  }).on('error', (error) => {
+    console.error('Image proxy error:', error);
+    res.status(500).send('Failed to fetch image');
+  });
+});
+
+// Proxy endpoint for animal images (default to first image)
+app.get('/api/animal-image/:animalId', async (req, res) => {
+  const https = require('https');
+  const { animalId, seq = 1 } = req.params;
+  
+  const queryParams = new URLSearchParams({
+    account: process.env.ASM_ACCOUNT || 'km2607',
+    method: 'animal_image',
+    animalid: animalId,
+    seq: seq,
+    username: process.env.ASM_USERNAME,
+    password: process.env.ASM_PASSWORD
+  });
+  
+  const apiUrl = `https://service.sheltermanager.com/asmservice?${queryParams}`;
+  
+  https.get(apiUrl, (apiRes) => {
+    res.status(apiRes.statusCode);
+    res.set('Content-Type', apiRes.headers['content-type'] || 'image/jpeg');
+    res.set('Cache-Control', 'public, max-age=3600'); // Cache images for 1 hour
+    apiRes.pipe(res);
+  }).on('error', (error) => {
+    console.error('Image proxy error:', error);
+    res.status(500).send('Failed to fetch image');
+  });
+});
+
+// API proxy for data endpoints (json_adoptable_animals, etc)
 app.get('/api/asm/:method', async (req, res) => {
   const https = require('https');
   const { method } = req.params;
   
-  // Build query parameters, preserving any from the original request
+  // Only allow specific safe methods
+  const allowedMethods = ['json_adoptable_animals', 'json_recent_adoptions'];
+  if (!allowedMethods.includes(method)) {
+    return res.status(403).json({ error: 'Method not allowed' });
+  }
+  
   const queryParams = new URLSearchParams({
     account: process.env.ASM_ACCOUNT || 'km2607',
     method: method,
     username: process.env.ASM_USERNAME,
-    password: process.env.ASM_PASSWORD,
-    ...req.query
+    password: process.env.ASM_PASSWORD
   });
   
   const apiUrl = `https://service.sheltermanager.com/asmservice?${queryParams}`;
   console.log(`Proxying ASM API request: ${method}`);
   
   try {
-    // Use native https module to avoid potential fetch issues
     https.get(apiUrl, (apiRes) => {
       const contentType = apiRes.headers['content-type'];
-      
-      // Set the same status code
       res.status(apiRes.statusCode);
-      
-      // Forward relevant headers
       if (contentType) {
         res.set('Content-Type', contentType);
       }
-      
-      // Pipe the response directly
       apiRes.pipe(res);
     }).on('error', (error) => {
       console.error('API proxy error:', error);

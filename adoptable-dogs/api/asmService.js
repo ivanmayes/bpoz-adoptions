@@ -1,24 +1,12 @@
 export class ASMService {
-    #base = 'https://service.sheltermanager.com/asmservice';
-    #account = 'km2607';
-    #username = '';
-    #password = '';
-    #useProxy = false; // Disable proxy for now, use direct API calls
-
-    constructor(username, password) {
-        this.#username = username || '';
-        this.#password = password || '';
+    constructor() {
+        // No credentials needed - all authentication handled server-side
+        console.log('ASMService initialized with secure proxy endpoints');
     }
 
     async getAdoptable() {
-        let url;
-        if (this.#useProxy) {
-            url = '/api/asm/json_adoptable_animals';
-        } else {
-            url = `${this.#base}?account=${this.#account}&method=json_adoptable_animals&username=${this.#username}&password=${this.#password}`;
-        }
-        
-        console.log('Fetching adoptable animals from:', url);
+        const url = '/api/asm/json_adoptable_animals';
+        console.log('Fetching adoptable animals from proxy:', url);
         
         try {
             const response = await fetch(url);
@@ -38,17 +26,23 @@ export class ASMService {
     }
 
     thumbnailUrl(animalId) {
-        if (this.#useProxy) {
-            return `/api/asm/animal_thumbnail?animalid=${animalId}`;
-        }
-        return `${this.#base}?account=${this.#account}&method=animal_thumbnail&animalid=${animalId}&username=${this.#username}&password=${this.#password}`;
+        // Use secure proxy endpoint that doesn't expose credentials
+        return `/api/animal-thumbnail/${animalId}`;
+    }
+
+    imageUrl(animalId, seq = 1) {
+        // Use secure proxy endpoint that doesn't expose credentials
+        return `/api/animal-image/${animalId}/${seq}`;
     }
 
     async animalViewUrl(animalId) {
         try {
             // Get all adoptable animals and find the specific one
             const animals = await this.getAdoptable();
-            const animal = animals.find(a => a.ID === animalId || a.ID === parseInt(animalId));
+            const animal = animals.find(a => {
+                const id = a.ANIMALID || a.animalid || a.ID || a.id;
+                return id && (id === animalId || id === parseInt(animalId));
+            });
             
             if (!animal) {
                 throw new Error(`Animal with ID ${animalId} not found`);
