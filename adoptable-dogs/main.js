@@ -154,7 +154,9 @@ class DogAdoptionApp {
         card.className = 'dog-card';
         card.dataset.animalId = animalId; // Add animal ID for filtering
         
-        const thumbnailUrl = this.service.thumbnailUrl(animalId);
+        // Use first photo from PHOTOURLS array for better quality
+        const photoUrls = dog.PHOTOURLS || dog.photourls || [];
+        const thumbnailUrl = photoUrls.length > 0 ? photoUrls[0] : 'https://via.placeholder.com/280x280?text=No+Photo';
         console.log('Dog:', animalName, 'ID:', animalId, 'Thumbnail URL:', thumbnailUrl);
         console.log('Animal View URL:', card.href);
         

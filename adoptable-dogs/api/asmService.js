@@ -25,6 +25,7 @@ export class ASMService {
         }
     }
 
+    // Deprecated - use PHOTOURLS[0] instead for better quality images
     thumbnailUrl(animalId) {
         // Use secure proxy endpoint that doesn't expose credentials
         return `/api/animal-thumbnail/${animalId}`;

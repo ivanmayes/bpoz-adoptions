@@ -79,7 +79,7 @@ app.get('/api/animal-thumbnail/:animalId', async (req, res) => {
     password: process.env.ASM_PASSWORD
   });
   
-  const apiUrl = `https://service.sheltermanager.com/asmservice?${queryParams}`;
+  const apiUrl = `https://us14d.sheltermanager.com/service?${queryParams}`;
   
   https.get(apiUrl, (apiRes) => {
     res.status(apiRes.statusCode);
@@ -106,7 +106,7 @@ app.get('/api/animal-image/:animalId/:seq', async (req, res) => {
     password: process.env.ASM_PASSWORD
   });
   
-  const apiUrl = `https://service.sheltermanager.com/asmservice?${queryParams}`;
+  const apiUrl = `https://us14d.sheltermanager.com/service?${queryParams}`;
   
   https.get(apiUrl, (apiRes) => {
     res.status(apiRes.statusCode);
@@ -133,7 +133,7 @@ app.get('/api/animal-image/:animalId', async (req, res) => {
     password: process.env.ASM_PASSWORD
   });
   
-  const apiUrl = `https://service.sheltermanager.com/asmservice?${queryParams}`;
+  const apiUrl = `https://us14d.sheltermanager.com/service?${queryParams}`;
   
   https.get(apiUrl, (apiRes) => {
     res.status(apiRes.statusCode);
@@ -164,7 +164,7 @@ app.get('/api/asm/:method', async (req, res) => {
     password: process.env.ASM_PASSWORD
   });
   
-  const apiUrl = `https://service.sheltermanager.com/asmservice?${queryParams}`;
+  const apiUrl = `https://us14d.sheltermanager.com/service?${queryParams}`;
   console.log(`Proxying ASM API request: ${method}`);
   
   try {
