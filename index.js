@@ -8,10 +8,16 @@ const port = process.env.PORT || 5006
 
 const app = express()
 
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+// Initialize OpenAI only if API key is available
+let openai = null;
+if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'your_openai_api_key_here') {
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+  });
+  console.log('OpenAI client initialized successfully');
+} else {
+  console.warn('OpenAI API key not found - chat functionality will be limited');
+}
 
 // Load system prompt
 let systemPrompt = ''
@@ -44,9 +50,9 @@ app.get('/adoptable-dogs', (req, res) => {
 
 app.get('/api/env', (req, res) => {
   res.json({
-    ASM_USERNAME: process.env.ASM_USERNAME,
-    ASM_PASSWORD: process.env.ASM_PASSWORD,
-    ASM_ACCOUNT: process.env.ASM_ACCOUNT
+    ASM_USERNAME: process.env.ASM_USERNAME || '',
+    ASM_PASSWORD: process.env.ASM_PASSWORD || '',
+    ASM_ACCOUNT: process.env.ASM_ACCOUNT || 'km2607'
   })
 })
 
@@ -97,14 +103,12 @@ app.post('/api/chat', async (req, res) => {
   try {
     const { messages, context } = req.body
     
-    // Check if OpenAI API key is properly configured
-    if (!process.env.OPENAI_API_KEY || 
-        process.env.OPENAI_API_KEY === 'your_openai_api_key_here' ||
-        process.env.OPENAI_API_KEY === 'sk-proj-YOUR_ACTUAL_OPENAI_API_KEY_HERE') {
-      console.log('OpenAI API key not configured properly')
+    // Check if OpenAI client is initialized
+    if (!openai) {
+      console.log('OpenAI client not initialized')
       return res.status(500).json({ 
         error: 'OpenAI API key not configured',
-        reply: "I'm not properly configured yet. Please add your OpenAI API key to the .env file. Get your API key from https://platform.openai.com/api-keys",
+        reply: "I'm not properly configured yet. The OpenAI API key needs to be set in the environment variables.",
         filter: false
       })
     }
