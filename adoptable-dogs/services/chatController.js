@@ -15,13 +15,21 @@ export class ChatController {
         this.chatSend = document.getElementById('chat-send');
         this.toggleView = document.getElementById('toggleView');
         
+        // Check if elements exist before setting up event listeners
+        if (!this.chatMessages || !this.chatInput || !this.chatSend) {
+            console.error('Chat elements not found in DOM');
+            return;
+        }
+        
         // Set up event listeners
         this.chatSend.addEventListener('click', () => this.sendMessage());
         this.chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.sendMessage();
         });
         
-        this.toggleView.addEventListener('click', () => this.toggleFilter());
+        if (this.toggleView) {
+            this.toggleView.addEventListener('click', () => this.toggleFilter());
+        }
         
         // Send initial greeting
         this.addAssistantMessage("Hello! I'm Paw-finder, your adoption assistant. I'd love to help you find the perfect dog companion. To get started, could you tell me about your living situation? Do you have kids, other dogs, or cats at home?");
@@ -32,6 +40,39 @@ export class ChatController {
         // Enable chat once we have data
         this.chatInput.disabled = false;
         this.chatSend.disabled = false;
+    }
+    
+    // New method for setting specific dog context
+    setDogContext(dogId) {
+        this.dogId = dogId;
+        this.dogContext = null;
+        
+        // Update the initial greeting for specific dog context
+        if (this.chatMessages) {
+            this.chatMessages.innerHTML = '';
+            this.addAssistantMessage(`Hello! I'm Paw-finder, your adoption assistant. I see you're interested in learning more about this dog. I can help answer any questions you have about this specific dog or the adoption process. What would you like to know?`);
+        }
+        
+        // Enable chat
+        if (this.chatInput) this.chatInput.disabled = false;
+        if (this.chatSend) this.chatSend.disabled = false;
+    }
+    
+    // Method to get context for specific dog
+    getDogSpecificContext() {
+        if (this.dogContext) {
+            return `SPECIFIC DOG INFORMATION:
+Name: ${this.dogContext.name}
+Breed: ${this.dogContext.breed}
+Age: ${this.dogContext.age}
+Sex: ${this.dogContext.sex}
+Size: ${this.dogContext.size}
+Traits: ${this.dogContext.traits.join(', ')}
+Description: ${this.dogContext.description}
+
+Please focus your response on this specific dog and provide helpful information about their characteristics, care needs, or the adoption process.`;
+        }
+        return '';
     }
     
     async sendMessage() {
@@ -53,8 +94,13 @@ export class ChatController {
         const typingId = this.showTypingIndicator();
         
         try {
-            // Get context from animals data
-            const context = ContextMapper.mapAnimalsToContext(this.animalsData);
+            // Get context - either specific dog or all animals
+            let context;
+            if (this.dogContext) {
+                context = this.getDogSpecificContext();
+            } else {
+                context = ContextMapper.mapAnimalsToContext(this.animalsData);
+            }
             console.log('Context size:', ContextMapper.getContextSize(context), 'tokens (approx)');
             
             // Send to OpenAI

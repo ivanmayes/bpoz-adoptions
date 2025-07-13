@@ -44,8 +44,21 @@ export class ASMService {
         return `${this.#base}?account=${this.#account}&method=animal_thumbnail&animalid=${animalId}&username=${this.#username}&password=${this.#password}`;
     }
 
-    animalViewUrl(animalId) {
-        // The animal_view method returns HTML content, so we link directly to the ASM service
-        return `${this.#base}?account=${this.#account}&method=animal_view&animalid=${animalId}`;
+    async animalViewUrl(animalId) {
+        try {
+            // Get all adoptable animals and find the specific one
+            const animals = await this.getAdoptable();
+            const animal = animals.find(a => a.ID === animalId || a.ID === parseInt(animalId));
+            
+            if (!animal) {
+                throw new Error(`Animal with ID ${animalId} not found`);
+            }
+            
+            // Return the animal data instead of just a URL
+            return animal;
+        } catch (error) {
+            console.error('Error getting animal data:', error);
+            throw error;
+        }
     }
 }

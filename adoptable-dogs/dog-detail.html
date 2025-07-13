@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog Details - Big Paws AI Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../public/stylesheets/main.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <style>
+        /* Detailed view specific styles */
+        .dog-detail-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .breadcrumb-nav {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        
+        .breadcrumb-nav .breadcrumb {
+            background: rgba(246, 198, 103, 0.1);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 0;
+        }
+        
+        .breadcrumb-nav .breadcrumb-item + .breadcrumb-item::before {
+            color: #4A6B3C;
+            content: ">";
+            font-weight: bold;
+        }
+        
+        .breadcrumb-nav .breadcrumb-item a {
+            color: #B01302;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .breadcrumb-nav .breadcrumb-item.active {
+            color: #2B3A2B;
+            font-weight: bold;
+        }
+        
+        .dog-header {
+            background: linear-gradient(135deg, #2B3A2B 0%, #4A6B3C 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(43, 58, 43, 0.15);
+        }
+        
+        .dog-header h1 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .dog-id {
+            color: #F6C667;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .dog-info-section {
+            display: grid;
+            grid-template-columns: 60% 40%;
+            gap: 30px;
+        }
+        
+        /* Image Carousel */
+        .image-carousel-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(43, 58, 43, 0.08);
+            height: fit-content;
+        }
+        
+        .main-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .main-image:hover {
+            transform: scale(1.02);
+        }
+        
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+        }
+        
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        
+        .thumbnail:hover, .thumbnail.active {
+            border-color: #F6C667;
+        }
+        
+        /* Info Cards */
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(43, 58, 43, 0.08);
+            border: 1px solid rgba(246, 198, 103, 0.2);
+        }
+        
+        .info-card h3 {
+            color: #2B3A2B;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-card h3 i {
+            color: #F6C667;
+        }
+        
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 15px;
+            background: rgba(246, 198, 103, 0.1);
+            border-radius: 8px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #4A6B3C;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .stat-value {
+            font-size: 1.1rem;
+            color: #2B3A2B;
+            font-weight: bold;
+        }
+        
+        /* Trait Badges */
+        .trait-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .trait-badge {
+            background: #F6C667;
+            color: #2B3A2B;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .trait-badge.positive {
+            background: #4A6B3C;
+            color: white;
+        }
+        
+        .trait-badge.medical {
+            background: #B01302;
+            color: white;
+        }
+        
+        .description-text {
+            line-height: 1.7;
+            color: #2B3A2B;
+            font-size: 1.05rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn-adopt {
+            background: #B01302;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        
+        .btn-adopt:hover {
+            background: #4A6B3C;
+            color: white;
+        }
+        
+        .btn-share {
+            background: transparent;
+            color: #B01302;
+            padding: 12px 20px;
+            border: 2px solid #B01302;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .btn-share:hover {
+            background: #B01302;
+            color: white;
+        }
+        
+        /* Loading States */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            color: #4A6B3C;
+        }
+        
+        .loading i {
+            margin-right: 10px;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .dog-info-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .dog-header h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .dog-detail-container {
+                padding: 15px;
+            }
+            
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .thumbnail-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dog-detail-container">
+        <!-- Breadcrumb Navigation -->
+        <nav class="breadcrumb-nav" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="index.html" id="backToList">
+                        <i class="fas fa-arrow-left"></i> All Dogs
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page" id="dogNameBreadcrumb">
+                    Loading...
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Dog Header -->
+        <div class="dog-header">
+            <h1 id="dogName">Loading...</h1>
+            <div class="dog-id" id="dogId"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Dog Information Section -->
+            <div class="dog-info-section">
+                <!-- Image Carousel -->
+                <div class="image-carousel-container">
+                    <div class="loading" id="imageLoading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        Loading images...
+                    </div>
+                    <div id="imageCarousel" style="display: none;">
+                        <img id="mainImage" class="main-image" src="" alt="Dog photo">
+                        <div class="thumbnail-grid" id="thumbnailGrid">
+                            <!-- Thumbnails will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dog Information -->
+                <div class="info-section">
+                    <!-- Quick Stats -->
+                    <div class="info-card">
+                        <h3><i class="fas fa-info-circle"></i> Quick Stats</h3>
+                        <div class="quick-stats">
+                            <div class="stat-item">
+                                <div class="stat-label">Age</div>
+                                <div class="stat-value" id="dogAge">-</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Breed</div>
+                                <div class="stat-value" id="dogBreed">-</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Size</div>
+                                <div class="stat-value" id="dogSize">-</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Sex</div>
+                                <div class="stat-value" id="dogSex">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personality & Traits -->
+                    <div class="info-card">
+                        <h3><i class="fas fa-heart"></i> Personality & Traits</h3>
+                        <div class="trait-badges" id="traitBadges">
+                            <!-- Trait badges will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Full Description -->
+                    <div class="info-card">
+                        <h3><i class="fas fa-file-text"></i> About This Dog</h3>
+                        <div class="description-text" id="dogDescription">
+                            Loading description...
+                        </div>
+                    </div>
+
+                    <!-- Adoption Actions -->
+                    <div class="info-card">
+                        <h3><i class="fas fa-home"></i> Ready to Adopt?</h3>
+                        <p>We require an approved adoption application before scheduling meets with our dogs.</p>
+                        <div class="action-buttons">
+                            <a href="#" class="btn-adopt" id="adoptionLink">
+                                <i class="fas fa-heart"></i>
+                                Apply to Adopt
+                            </a>
+                            <a href="#" class="btn-share" id="shareButton">
+                                <i class="fas fa-share-alt"></i>
+                                Share
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Sidebar -->
+            <div class="chat-sidebar">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <h3>🐾 Paw-finder Assistant</h3>
+                        <button id="toggleView" class="btn btn-sm btn-outline-light">
+                            Return to All Dogs
+                        </button>
+                    </div>
+                    <div id="chat-messages" class="chat-messages">
+                        <!-- Chat messages will appear here -->
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-input" placeholder="Ask about this dog or adoption process..." disabled>
+                        <button id="chat-send" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="services/dogDetailService.js" type="module"></script>
+    <script src="services/dogDetailController.js" type="module"></script>
+    <script src="services/chatController.js" type="module"></script>
+    <script>
+        // Initialize the detailed view
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Get dog ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const dogId = urlParams.get('id');
+            
+            if (!dogId) {
+                alert('No dog ID provided');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Initialize dog detail controller
+            try {
+                const { DogDetailController } = await import('./services/dogDetailController.js');
+                const controller = new DogDetailController(dogId);
+                await controller.initialize();
+                
+                // Initialize chat for this specific dog
+                const { ChatController } = await import('./services/chatController.js');
+                const chatController = new ChatController();
+                chatController.setDogContext(dogId);
+                
+                // Set the dog context once the dog data is loaded
+                const dogContext = controller.getDogContext();
+                if (dogContext) {
+                    chatController.dogContext = dogContext;
+                }
+                
+            } catch (error) {
+                console.error('Failed to initialize:', error);
+                alert('Failed to load dog details');
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>

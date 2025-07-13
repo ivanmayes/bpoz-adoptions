@@ -100,9 +100,7 @@ class DogAdoptionApp {
         }
         
         const card = document.createElement('a');
-        card.href = this.service.animalViewUrl(animalId);
-        card.target = '_blank';
-        card.rel = 'noopener noreferrer';
+        card.href = `dog-detail.html?id=${animalId}`;
         card.className = 'dog-card';
         card.dataset.animalId = animalId; // Add animal ID for filtering
         
