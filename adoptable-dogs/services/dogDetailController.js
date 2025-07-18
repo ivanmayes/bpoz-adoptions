@@ -250,22 +250,85 @@ export class DogDetailController {
     }
     
     fallbackShare() {
-        // Copy URL to clipboard
-        navigator.clipboard.writeText(window.location.href).then(() => {
-            // Show success message
-            const shareButton = document.getElementById('shareButton');
-            const originalText = shareButton.innerHTML;
-            shareButton.innerHTML = '<i class="fas fa-check"></i> Link Copied!';
-            shareButton.style.background = '#4A6B3C';
+        // Get the current page URL
+        const currentUrl = window.location.href;
+        
+        // Try modern clipboard API first
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(currentUrl).then(() => {
+                this.showShareSuccess();
+            }).catch(err => {
+                console.error('Clipboard API failed:', err);
+                this.fallbackCopyMethod(currentUrl);
+            });
+        } else {
+            // Fallback to older method
+            this.fallbackCopyMethod(currentUrl);
+        }
+    }
+    
+    fallbackCopyMethod(url) {
+        try {
+            // Create a temporary input element
+            const tempInput = document.createElement('input');
+            tempInput.style.position = 'absolute';
+            tempInput.style.left = '-9999px';
+            tempInput.value = url;
+            document.body.appendChild(tempInput);
             
-            setTimeout(() => {
-                shareButton.innerHTML = originalText;
-                shareButton.style.background = '';
-            }, 2000);
-        }).catch(err => {
-            console.error('Could not copy to clipboard:', err);
-            alert('Could not copy link to clipboard');
-        });
+            // Select and copy the text
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999); // For mobile devices
+            
+            const successful = document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            if (successful) {
+                this.showShareSuccess();
+            } else {
+                this.showShareError();
+            }
+        } catch (err) {
+            console.error('Fallback copy method failed:', err);
+            this.showShareError();
+        }
+    }
+    
+    showShareSuccess() {
+        const shareButton = document.getElementById('shareButton');
+        const originalText = shareButton.innerHTML;
+        shareButton.innerHTML = '<i class="fas fa-check"></i> Link Copied!';
+        shareButton.style.background = '#b2b333';
+        shareButton.style.color = 'white';
+        shareButton.style.borderColor = '#b2b333';
+        
+        setTimeout(() => {
+            shareButton.innerHTML = originalText;
+            shareButton.style.background = '';
+            shareButton.style.color = '';
+            shareButton.style.borderColor = '';
+        }, 2000);
+    }
+    
+    showShareError() {
+        const shareButton = document.getElementById('shareButton');
+        const originalText = shareButton.innerHTML;
+        shareButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Copy Failed';
+        shareButton.style.background = '#B01302';
+        shareButton.style.color = 'white';
+        shareButton.style.borderColor = '#B01302';
+        
+        setTimeout(() => {
+            shareButton.innerHTML = originalText;
+            shareButton.style.background = '';
+            shareButton.style.color = '';
+            shareButton.style.borderColor = '';
+        }, 3000);
+        
+        // Show manual copy option
+        const currentUrl = window.location.href;
+        const message = `Could not copy link automatically. Please copy this URL manually:\n\n${currentUrl}`;
+        alert(message);
     }
     
     showError(message) {
