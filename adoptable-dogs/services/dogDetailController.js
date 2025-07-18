@@ -101,10 +101,24 @@ export class DogDetailController {
     setupImageCarousel() {
         const mainImage = document.getElementById('mainImage');
         const thumbnailGrid = document.getElementById('thumbnailGrid');
+        const prevBtn = document.getElementById('prevImageBtn');
+        const nextBtn = document.getElementById('nextImageBtn');
         
         // Set first image as main
         mainImage.src = this.validImages[0];
         mainImage.alt = `${this.dogData.name} - Photo 1`;
+        
+        // Show/hide arrows based on image count
+        if (this.validImages.length <= 1) {
+            prevBtn.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+        } else {
+            prevBtn.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
+        }
+        
+        // Update arrow states
+        this.updateArrowStates();
         
         // Create thumbnails
         thumbnailGrid.innerHTML = '';
@@ -119,10 +133,10 @@ export class DogDetailController {
         
         // Add keyboard navigation
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft' && this.currentImageIndex > 0) {
-                this.selectImage(this.currentImageIndex - 1);
-            } else if (e.key === 'ArrowRight' && this.currentImageIndex < this.validImages.length - 1) {
-                this.selectImage(this.currentImageIndex + 1);
+            if (e.key === 'ArrowLeft') {
+                this.navigateImage(-1);
+            } else if (e.key === 'ArrowRight') {
+                this.navigateImage(1);
             }
         });
     }
@@ -142,6 +156,34 @@ export class DogDetailController {
         thumbnails.forEach((thumb, i) => {
             thumb.classList.toggle('active', i === index);
         });
+        
+        // Update arrow states
+        this.updateArrowStates();
+    }
+    
+    navigateImage(direction) {
+        let newIndex = this.currentImageIndex + direction;
+        
+        // Handle continuous loop
+        if (newIndex >= this.validImages.length) {
+            newIndex = 0; // Go to first image when reaching the end
+        } else if (newIndex < 0) {
+            newIndex = this.validImages.length - 1; // Go to last image when going before the first
+        }
+        
+        this.selectImage(newIndex);
+    }
+    
+    updateArrowStates() {
+        const prevBtn = document.getElementById('prevImageBtn');
+        const nextBtn = document.getElementById('nextImageBtn');
+        
+        // With continuous looping, arrows are never disabled
+        // Only update if arrows are visible (more than one image)
+        if (!prevBtn.classList.contains('hidden')) {
+            prevBtn.disabled = false;
+            nextBtn.disabled = false;
+        }
     }
     
     hideImageLoading() {
@@ -159,23 +201,25 @@ export class DogDetailController {
     }
     
     setupEventListeners() {
-        // Back button
+        // Back to list button
         document.getElementById('backToList').addEventListener('click', (e) => {
             e.preventDefault();
-            this.goBack();
+            window.location.href = 'index.html';
         });
         
-        // Toggle view button in chat
-        const toggleButton = document.getElementById('toggleView');
-        if (toggleButton) {
-            toggleButton.addEventListener('click', () => {
-                this.goBack();
-            });
-        }
+        // Share button
+        document.getElementById('shareButton').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.shareDog();
+        });
         
-        // Handle browser back button
-        window.addEventListener('popstate', () => {
-            this.goBack();
+        // Carousel arrow event listeners
+        document.getElementById('prevImageBtn').addEventListener('click', () => {
+            this.navigateImage(-1);
+        });
+        
+        document.getElementById('nextImageBtn').addEventListener('click', () => {
+            this.navigateImage(1);
         });
     }
     
